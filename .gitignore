@@ -32,3 +32,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Custom ###
+.yml
+.yaml
+application.yml
