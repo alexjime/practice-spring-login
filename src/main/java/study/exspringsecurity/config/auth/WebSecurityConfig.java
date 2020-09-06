@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -18,6 +19,8 @@ import study.exspringsecurity.oauth2.CustomOAuth2Provider;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static study.exspringsecurity.oauth2.SocialType.*;
 
 /* Spring Security 설정 */
 /* Spring OAuth2 설정 */
@@ -38,20 +41,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/kakao").hasAuthority(KAKAO.getRoleType())
                     .antMatchers("/naver").hasAuthority(NAVER.getRoleType())
                     .anyRequest().authenticated()
-                .and()
-                    .formLogin()
-                        .loginPage("/login")
-                        .permitAll()
+//                .and()
+//                    .formLogin()
+//                        .loginPage("/login")
+//                        .permitAll()
                 .and()
                     .oauth2Login()
-                        .userInfoEndpoint().userService(new CustomOAuth2UserService())
-                .and()
-                    .defaultSuccessUrl("/loginSuccess")
+                    .defaultSuccessUrl("/hello")
                     .failureUrl("/loginFailure")
                 .and()
                     .logout()
                         .logoutSuccessUrl("/home")
-                        .permitAll()
+                        .invalidateHttpSession(true)
                 .and()
                     .exceptionHandling()
                     .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
@@ -94,6 +95,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     private ClientRegistration getClientRegistration(OAuth2ClientProperties clientProperties, String client) {
+        if("google".equals(client)) {
+            OAuth2ClientProperties.Registration registration =
+                    clientProperties.getRegistration().get("google");
+            return CommonOAuth2Provider.GOOGLE.getBuilder(client)
+                    .clientId(registration.getClientId())
+                    .clientSecret(registration.getClientSecret())
+                    .scope("email","profile")
+                    .build();
+        }
+
+        if("facebook".equals(client)) {
+            OAuth2ClientProperties.Registration registration =
+                    clientProperties.getRegistration().get("facebook");
+            return CommonOAuth2Provider.FACEBOOK.getBuilder(client)
+                    .clientId(registration.getClientId())
+                    .clientSecret(registration.getClientSecret())
+                    .scope("profile")
+                    .build();
+        }
         return null;
     }
 }

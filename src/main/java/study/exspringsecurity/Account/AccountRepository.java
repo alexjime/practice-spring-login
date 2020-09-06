@@ -1,5 +1,7 @@
 package study.exspringsecurity.Account;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,8 +13,10 @@ import java.util.Map;
 import java.util.Random;
 
 @Repository
+@RequiredArgsConstructor
 public class AccountRepository  {
 
+    private final EntityManager em;
     // Mapper를 찾아보자
     private Map<String, Account> accounts = new HashMap<>();
 //    private Random random = new Random();
